@@ -13,6 +13,8 @@ const MAX_MAX_RESULTS = 2000;
 export class YouTubeLiveChat {
   public estimatedQuotaUsed = 0;
 
+  private static subjectCache: {[index: string]: Subject<YouTubeLiveChatMessage>} = {};
+
   constructor(private apiKey: string) {}
 
   public async searchChannelForLiveVideoIds(channelId: string) {
@@ -61,34 +63,45 @@ export class YouTubeLiveChat {
   }
 
   public listen(liveChatId: string) {
-    const chatSubject = new Subject<YouTubeLiveChatMessage>();
-    const resultsFetchLoop = (result: YouTubeLiveChatResponse) => {
-      if (!result) {
-        chatSubject.error({
-          code: null,
-          message: 'Unkonwn error occurred - no result object was given',
-        } as YouTubeErrorObject);
-      } else if (result.error) {
-        chatSubject.error(result.error);
-      } else {
-        let chatEndedFlag = false;
-        for (const message of result.items) {
-          chatSubject.next(message);
-          if (message.snippet.type === 'chatEndedEvent') {
-            chatEndedFlag = true;
-          }
-        }
-        if (result.offlineAt || chatEndedFlag) {
-          chatSubject.complete();
+    if (!YouTubeLiveChat.subjectCache[liveChatId]) {
+      YouTubeLiveChat.subjectCache[liveChatId] = new Subject<YouTubeLiveChatMessage>();
+      const resultsFetchLoop = (result: YouTubeLiveChatResponse) => {
+        if (YouTubeLiveChat.subjectCache[liveChatId].isStopped) {
           return;
         }
-        setTimeout(() => {
-          this.fetchLiveChats(liveChatId, result.nextPageToken).then(resultsFetchLoop);
-        }, result.pollingIntervalMillis);
-      }
-    };
-    this.fetchLiveChats(liveChatId, undefined, 1).then(resultsFetchLoop);
-    return chatSubject.asObservable();
+        if (!result) {
+          YouTubeLiveChat.subjectCache[liveChatId].error({
+            code: null,
+            message: 'Unkonwn error occurred - no result object was given',
+          } as YouTubeErrorObject);
+        } else if (result.error) {
+          YouTubeLiveChat.subjectCache[liveChatId].error(result.error);
+        } else {
+          let chatEndedFlag = false;
+          for (const message of result.items) {
+            YouTubeLiveChat.subjectCache[liveChatId].next(message);
+            if (message.snippet.type === 'chatEndedEvent') {
+              chatEndedFlag = true;
+            }
+          }
+          if (result.offlineAt || chatEndedFlag) {
+            YouTubeLiveChat.subjectCache[liveChatId].complete();
+            return;
+          }
+          setTimeout(() => {
+            this.fetchLiveChats(liveChatId, result.nextPageToken).then(resultsFetchLoop);
+          }, result.pollingIntervalMillis);
+        }
+      };
+      this.fetchLiveChats(liveChatId, undefined, 1).then(resultsFetchLoop);
+    }
+    return YouTubeLiveChat.subjectCache[liveChatId];
+  }
+
+  public stop(liveChatId: string) {
+    if (YouTubeLiveChat.subjectCache[liveChatId]) {
+      YouTubeLiveChat.subjectCache[liveChatId].complete();
+    }
   }
 }
 
