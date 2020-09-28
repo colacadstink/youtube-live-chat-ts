@@ -1,0 +1,10 @@
+{
+  "extends": "tslint:latest",
+  "rules": {
+    "no-object-literal-type-assertion": [true, { "allow-arguments": true }],
+    "one-line": [true, "check-whitespace", "check-open-brace", "check-finally", "check-else", "check-catch"],
+    "quotemark": [true, "single", "avoid-escape"],
+    "semicolon": true,
+    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}]
+  }
+}
