@@ -1,13 +1,14 @@
 {
   "name": "youtube-live-chat-ts",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "A YouTube live chat API written in TypeScript\n",
   "main": "index.js",
   "scripts": {
     "build": "tsc"
   },
   "keywords": ["youtube", "live", "chat", "typescript"],
   "author": "Benjamin Harris",
+  "repository": "https://github.com/colacadstink/youtube-live-chat-ts",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.20.0",
