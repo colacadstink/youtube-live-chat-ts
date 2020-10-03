@@ -85,7 +85,7 @@ export class YouTubeLiveChat {
             }
           }
           if (result.offlineAt || chatEndedFlag) {
-            YouTubeLiveChat.subjectCache[liveChatId].complete();
+            this.stop(liveChatId);
             return;
           }
           setTimeout(() => {
@@ -101,6 +101,7 @@ export class YouTubeLiveChat {
   public stop(liveChatId: string) {
     if (YouTubeLiveChat.subjectCache[liveChatId]) {
       YouTubeLiveChat.subjectCache[liveChatId].complete();
+      delete YouTubeLiveChat.subjectCache[liveChatId];
     }
   }
 }
