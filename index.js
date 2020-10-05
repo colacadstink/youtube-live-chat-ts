@@ -20,8 +20,8 @@ const SEARCH_QUOTA_USAGE = 100;
 const VIDEOS_URL = 'https://www.googleapis.com/youtube/v3/videos';
 const VIDEOS_LIST_QUOTA_USAGE = 1;
 const LIVE_CHAT_MESSAGES_URL = 'https://www.googleapis.com/youtube/v3/liveChat/messages';
-const LIVE_CHAT_MESSAGES_LIST_QUOTA = 1;
-const LIVE_CHAT_MESSAGE_QUOTA_PER_ITEM = 0; // Unclear? This might be 1.
+const LIVE_CHAT_MESSAGES_LIST_QUOTA = 0; // Unclear? This might be 0 or 1.
+const LIVE_CHAT_MESSAGE_QUOTA_PER_ITEM = 1; // Unclear? This might be 0 or 1.
 const MAX_MAX_RESULTS = 2000;
 class YouTubeLiveChat {
     constructor(apiKey) {
@@ -103,7 +103,7 @@ class YouTubeLiveChat {
                         }
                     }
                     if (result.offlineAt || chatEndedFlag) {
-                        YouTubeLiveChat.subjectCache[liveChatId].complete();
+                        this.stop(liveChatId);
                         return;
                     }
                     setTimeout(() => {
@@ -118,6 +118,7 @@ class YouTubeLiveChat {
     stop(liveChatId) {
         if (YouTubeLiveChat.subjectCache[liveChatId]) {
             YouTubeLiveChat.subjectCache[liveChatId].complete();
+            delete YouTubeLiveChat.subjectCache[liveChatId];
         }
     }
 }
