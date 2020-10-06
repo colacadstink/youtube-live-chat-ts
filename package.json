@@ -1,10 +1,11 @@
 {
   "name": "youtube-live-chat-ts",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A YouTube live chat API written in TypeScript\n",
   "main": "index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "youtube",

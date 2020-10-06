@@ -6,9 +6,10 @@ const SEARCH_QUOTA_USAGE = 100;
 const VIDEOS_URL = 'https://www.googleapis.com/youtube/v3/videos';
 const VIDEOS_LIST_QUOTA_USAGE = 1;
 const LIVE_CHAT_MESSAGES_URL = 'https://www.googleapis.com/youtube/v3/liveChat/messages';
-const LIVE_CHAT_MESSAGES_LIST_QUOTA = 0;  // Unclear? This might be 0 or 1.
-const LIVE_CHAT_MESSAGE_QUOTA_PER_ITEM = 1; // Unclear? This might be 0 or 1.
+const LIVE_CHAT_MESSAGES_LIST_QUOTA = 6; // This is not documented. I'm making guesses until it is.
+const LIVE_CHAT_MESSAGE_QUOTA_PER_ITEM = 0; // This *should* be 0, but it's here in case it's not.
 const MAX_MAX_RESULTS = 2000;
+const MIN_REQUEST_DELAY = 5000;
 
 export class YouTubeLiveChat {
   public estimatedQuotaUsed = 0;
@@ -90,7 +91,7 @@ export class YouTubeLiveChat {
           }
           setTimeout(() => {
             this.fetchLiveChats(liveChatId, result.nextPageToken).then(resultsFetchLoop);
-          }, result.pollingIntervalMillis);
+          }, Math.max(result.pollingIntervalMillis, MIN_REQUEST_DELAY));
         }
       };
       this.fetchLiveChats(liveChatId, undefined, 1).then(resultsFetchLoop);
